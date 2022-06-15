@@ -6,12 +6,20 @@ from user import serializer
 from user.models import User
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
-from user.serializer import UserCreateSerializer, UserLoginSerializer, UserRegisterSerializer
-from rest_framework.generics import RetrieveAPIView
+from user.serializer import UserCreateSerializer, UserLoginSerializer, UserRegisterSerializer, KnoxUserSerializer,\
+     KnoxRegisterSerializer, UserLoginSerializerAPI
+from rest_framework.generics import RetrieveAPIView, GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
+from knox.models import AuthToken
+from knox.views import LoginView
+from django.contrib.auth import login
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
 
 
 class SignupViewSet(ModelViewSet):
@@ -52,4 +60,41 @@ class UserRegister(APIView):
                 'user': serializer.data,
             }
             return Response(response_data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class KnoxRegister(GenericAPIView):
+    serializer_class = KnoxRegisterSerializer
+    permission_classes = (permissions.AllowAny,)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        # print(serializer)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        # print(user)
+        return Response({
+        "user": KnoxUserSerializer(user).data,
+        "token": AuthToken.objects.create(user)[1]
+        })
+
+class KnoxLogin(LoginView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    @csrf_exempt
+    def post(self, request, format=None):
+        serializer = AuthTokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        login(request, user)
+        return super(KnoxLogin, self).post(request, format=None)
+
+class LoginAPI(APIView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = UserLoginSerializerAPI
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
