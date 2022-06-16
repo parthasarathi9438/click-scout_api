@@ -104,3 +104,18 @@ class UserLoginSerializerAPI(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError("User not active.")
         return data
+
+# class UserPasswordSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ['password']
+
+#         old_password = serializers.CharField(required=True)
+#         new_password = serializers.CharField(required=True)
+
+class ChangePasswordSerializer(serializers.Serializer):
+    class Meta:
+        model = User
+
+    current_password = serializers.CharField()
+    new_password = serializers.CharField()

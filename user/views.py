@@ -7,8 +7,8 @@ from user.models import User
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
 from user.serializer import UserCreateSerializer, UserLoginSerializer, UserRegisterSerializer, KnoxUserSerializer,\
-     KnoxRegisterSerializer, UserLoginSerializerAPI
-from rest_framework.generics import RetrieveAPIView, GenericAPIView
+     KnoxRegisterSerializer, UserLoginSerializerAPI, ChangePasswordSerializer
+from rest_framework.generics import RetrieveAPIView, GenericAPIView, UpdateAPIView
 from rest_framework.views import APIView
 from rest_framework.authentication import TokenAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -98,3 +98,42 @@ class LoginAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class ChangePassword(UpdateAPIView):
+#     serializer_class = UserPasswordSerializer
+#     queryset = User.objects.all()
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_object(self, queryset=None):
+#         obj = self.request.user
+#         return obj
+
+#     def update(self, request, *args, **kwargs):
+#         self.object = self.get_object()
+#         serializer = self.get_serializer(data=request.data)
+
+#         if serializer.is_valid():
+#             self.object.set_password(serializer.data.get("new_password"))
+#             self.object.save()
+#             response = {
+#                 'status': 'success',
+#                 'code': status.HTTP_200_OK,
+#                 'message': 'Password updated successfully',
+#                 'data': []
+#             }
+#             return Response(response)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ChangePasswordView(APIView):
+    
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        email = request.user.email
+        # print(email)
+        user = authenticate(request, email=email, password=serializer.data['current_password'])
+        if user is None:
+            return Response({"message": "Incorrect details"}, status=status.HTTP_401_UNAUTHORIZED)
+        request.user.set_password(serializer.data['new_password'])
+        request.user.save()
+        return Response({"message": "Successfully changed password"})

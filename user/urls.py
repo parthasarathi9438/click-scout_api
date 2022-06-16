@@ -22,4 +22,6 @@ urlpatterns = [
     # path('knox_register/',csrf_exempt(views.KnoxRegister.as_view())),
     # path('knox_login/', views.KnoxLogin.as_view(), name='knox_login'),
     path('login_api/', views.LoginAPI.as_view(), name='login_api'),
+    # path('change_password/', views.ChangePassword.as_view(), name='change_password'),
+    path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
 ]
