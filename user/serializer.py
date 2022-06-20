@@ -27,52 +27,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
         return user
 
-
-class UserLoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('email', 'password',)
-
-
-class UserRegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(max_length=20, min_length=8, write_only=True, required=True)
-    class Meta:
-        model = User
-        fields = ('email', 'first_name', 'last_name', 'password', 'confirmed', 'is_staff', 'is_superuser', 'is_active',)
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
-    
-    def create(self, validated_data):
-        user = User.objects.create_user(
-            email=validated_data.get('email'),
-            first_name=validated_data.get('first_name'),
-            last_name=validated_data.get('last_name'),
-            password=validated_data.get('password'),
-            confirmed=validated_data.get('confirmed'),
-            is_staff=validated_data.get('is_staff'),
-            is_superuser=validated_data.get('is_superuser'),
-            is_active=validated_data.get('is_active')
-        )
-        user.save()
-        return user
-
-
-class KnoxRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        user = User.objects.create_user(validated_data['username'], validated_data['password'])
-        return user
-
-class KnoxUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username')
-
 class UserLoginSerializerAPI(serializers.ModelSerializer):
     username = serializers.CharField(required=False,allow_blank=True,write_only=True,)
     email = serializers.EmailField(required=False,allow_blank=True,write_only=True,label="Email Address")
@@ -104,14 +58,6 @@ class UserLoginSerializerAPI(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError("User not active.")
         return data
-
-# class UserPasswordSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['password']
-
-#         old_password = serializers.CharField(required=True)
-#         new_password = serializers.CharField(required=True)
 
 class ChangePasswordSerializer(serializers.Serializer):
     class Meta:
