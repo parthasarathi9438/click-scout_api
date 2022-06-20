@@ -15,5 +15,5 @@ urlpatterns = [
     path('auth_token/', auv.obtain_auth_token),
     path('login_api/', views.LoginAPI.as_view(), name='login_api'),
     path('change_password/', views.ChangePasswordView.as_view(), name='change_password'),
-    path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
+    # path('password_reset/', include('django_rest_passwordreset.urls', namespace='password_reset')),
 ]
