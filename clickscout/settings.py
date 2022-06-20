@@ -38,6 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'core',
+    'rest_framework',
+    'user',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'knox',
+    'django_rest_passwordreset',
 ]
 
 MIDDLEWARE = [
@@ -122,3 +128,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTH_USER_MODEL = 'user.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'knox.auth.TokenAuthentication',
+    ]
+}
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
